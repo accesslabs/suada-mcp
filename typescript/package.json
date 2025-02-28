@@ -1,0 +1,40 @@
+{
+    "name": "suada-mcp-server",
+    "version": "1.0.0",
+    "description": "Model Context Protocol server implementation for Suada",
+    "main": "dist/suada-server.js",
+    "types": "dist/suada-server.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/suada-server.js",
+        "dev": "ts-node suada-server.ts",
+        "test": "jest",
+        "lint": "eslint ."
+    },
+    "keywords": [
+        "mcp",
+        "modelcontextprotocol",
+        "suada",
+        "llm"
+    ],
+    "author": "Suada Team",
+    "license": "MIT",
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^0.1.0",
+        "@suada/node": "^1.0.0",
+        "dotenv": "^16.3.1"
+    },
+    "devDependencies": {
+        "@types/node": "^20.9.0",
+        "@typescript-eslint/eslint-plugin": "^6.11.0",
+        "@typescript-eslint/parser": "^6.11.0",
+        "eslint": "^8.53.0",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.1.1",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.2.2"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}

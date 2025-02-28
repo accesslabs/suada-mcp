@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "suada-mcp-server"
+version = "1.0.0"
+description = "Model Context Protocol server implementation for Suada"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Suada Team", email = "support@suada.com"}
+]
+dependencies = [
+    "suada>=1.0.0",
+    "modelcontextprotocol>=0.1.0",
+    "python-dotenv>=0.20.0",
+    "pydantic>=1.10.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "isort>=5.0.0",
+    "ruff>=0.0.54"
+]
+
+[tool.setuptools.packages.find]
+include = ["suada_mcp*"]
+
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310", "py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+select = ["E", "F", "I"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[project.scripts]
+suada-mcp-server = "suada_mcp.server:main" 
