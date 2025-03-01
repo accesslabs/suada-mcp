@@ -13,7 +13,7 @@ Suada is an Integrated Reasoning Framework that helps you build custom data pipe
 
 This MCP implementation provides a bridge between AI models (like Claude) and Suada's powerful data processing and reasoning capabilities.
 
-We provide integrations to the following platforms, with more to come in the future:
+We provide integrations to to the following platforms, with more to come in the future:
 
 - Slack
 - Notion

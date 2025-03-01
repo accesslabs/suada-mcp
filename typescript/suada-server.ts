@@ -274,7 +274,8 @@ async function main(): Promise<void> {
     }
 }
 
-// Run the main function
-if (require.main === module) {
-    main();
-} 
+
+main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});  

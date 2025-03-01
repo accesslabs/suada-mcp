@@ -237,8 +237,8 @@ async function main() {
         process.exit(1);
     }
 }
-// Run the main function
-if (require.main === module) {
-    main();
-}
+main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});
 //# sourceMappingURL=suada-server.js.map
