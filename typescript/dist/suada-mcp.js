@@ -1,79 +1,38 @@
+"use strict";
 /**
  * Suada Model Context Protocol (MCP) Implementation
- * 
+ *
  * This module implements the Model Context Protocol for Suada, allowing models
  * to retrieve and reason over custom data feeds through Suada's data pipelines.
  */
-
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-
-/**
- * MCP Request interface
- */
-export interface MCPRequest {
-    query: string;
-    context?: Record<string, any>;
-    userId?: string;
-    conversationId?: string;
-    metadata?: Record<string, any>;
-}
-
-/**
- * MCP Response interface
- */
-export interface MCPResponse {
-    content: string;
-    metadata: Record<string, any>;
-    error?: string;
-}
-
-/**
- * Suada API Response structure
- */
-export interface SuadaResponse {
-    metrics?: Record<string, string>;
-    insights?: string[];
-    recommendations?: string[];
-    risks?: string[];
-    reasoning?: string;
-    response: string;
-}
-
-/**
- * Suada MCP Configuration
- */
-export interface SuadaMCPConfig {
-    apiKey: string;
-    baseUrl?: string;
-    externalUserIdentifier?: string;
-}
-
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SuadaMCP = void 0;
+const axios_1 = __importDefault(require("axios"));
 /**
  * Suada Model Context Protocol implementation
  */
-export class SuadaMCP {
-    private apiKey: string;
-    private baseUrl: string;
-    private externalUserIdentifier?: string;
-    private client: AxiosInstance;
-
+class SuadaMCP {
+    apiKey;
+    baseUrl;
+    externalUserIdentifier;
+    client;
     /**
      * Initialize the Suada MCP client
-     * 
+     *
      * @param config - Configuration for the Suada MCP client
      */
-    constructor(config: SuadaMCPConfig) {
+    constructor(config) {
         this.apiKey = config.apiKey;
-
         if (!this.apiKey) {
             throw new Error('Suada API key is required');
         }
-
-        this.baseUrl = config.baseUrl?.replace(/\/$/, '') || 'https://suada.ai/api/public';
+        this.baseUrl = config.baseUrl?.replace(/\/$/, '') || 'https://localhost:3000/public';
         this.externalUserIdentifier = config.externalUserIdentifier;
-
         // Initialize axios client
-        this.client = axios.create({
+        this.client = axios_1.default.create({
             baseURL: this.baseUrl,
             headers: {
                 'Authorization': `Bearer ${this.apiKey}`,
@@ -82,43 +41,36 @@ export class SuadaMCP {
                 'User-Agent': 'SuadaMCP/1.0 TypeScript'
             }
         });
-
         console.log(`Initialized Suada MCP client with base URL: ${this.baseUrl}`);
     }
-
     /**
      * Process an MCP request through Suada
-     * 
+     *
      * @param request - The MCP request to process
      * @returns A promise that resolves to an MCPResponse
      */
-    async process(request: MCPRequest): Promise<MCPResponse> {
+    async process(request) {
         try {
             // Ensure we have a user identifier
             const userId = request.userId || this.externalUserIdentifier;
             if (!userId) {
                 throw new Error('User identifier is required. Provide it in the request or during initialization.');
             }
-
             // Prepare the payload for Suada API
             const payload = {
                 message: request.query,
                 externalUserIdentifier: userId,
                 context: request.context || {}
-            } as Record<string, any>;
-
+            };
             // Add conversation ID if available
             if (request.conversationId) {
                 payload.conversationId = request.conversationId;
             }
-
             // Make the API request
             console.log(`Sending request to Suada API: ${request.query}`);
-            const response = await this.client.post<SuadaResponse>('/chat', payload);
-
+            const response = await this.client.post('/chat', payload);
             // Extract data from the response
             const data = response.data;
-
             // Extract structured data
             const structuredData = {
                 metrics: data.metrics || {},
@@ -127,7 +79,6 @@ export class SuadaMCP {
                 risks: data.risks || [],
                 reasoning: data.reasoning || ''
             };
-
             // Return formatted response
             return {
                 content: data.response || '',
@@ -136,91 +87,77 @@ export class SuadaMCP {
                     rawResponse: data
                 }
             };
-
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error processing MCP request:', error);
-
             // Handle axios errors
-            if (axios.isAxiosError(error)) {
-                const axiosError = error as AxiosError;
-
+            if (axios_1.default.isAxiosError(error)) {
+                const axiosError = error;
                 // Try to extract error details if available
                 let errorMessage = 'Failed to communicate with Suada API';
                 let statusCode = axiosError.response?.status;
-
                 if (axiosError.response?.data && typeof axiosError.response.data === 'object') {
-                    const errorData = axiosError.response.data as any;
+                    const errorData = axiosError.response.data;
                     if (errorData.message) {
                         errorMessage = errorData.message;
                     }
                 }
-
                 return {
                     content: '',
                     error: errorMessage,
                     metadata: { statusCode }
                 };
             }
-
             // Handle other errors
             return {
                 content: '',
-                error: `Unexpected error: ${(error as Error).message || String(error)}`,
+                error: `Unexpected error: ${error.message || String(error)}`,
                 metadata: {}
             };
         }
     }
-
     /**
      * Create a LangChain tool that uses this MCP
-     * 
+     *
      * @param name - Name of the tool
      * @param description - Description of the tool
      * @returns A LangChain tool that can be used in agents
      */
-    createLangChainTool(name = 'suada_data', description?: string) {
+    createLangChainTool(name = 'suada_data', description) {
         try {
             // Check if LangChain is available
             // This is a runtime check since we don't want to make LangChain a required dependency
             const langchain = require('langchain/tools');
-
-            const defaultDescription =
-                'Use this tool to get business insights and analysis from Suada. ' +
+            const defaultDescription = 'Use this tool to get business insights and analysis from Suada. ' +
                 'Input should be a specific business question.';
-
             // Create a tool class
             class SuadaTool extends langchain.Tool {
                 name = name;
                 description = description || defaultDescription;
-                mcp: SuadaMCP;
-
-                constructor(mcp: SuadaMCP) {
+                mcp;
+                constructor(mcp) {
                     super();
                     this.mcp = mcp;
                 }
-
-                async _call(query: string): Promise<string> {
-                    const mcpRequest: MCPRequest = { query };
+                async _call(query) {
+                    const mcpRequest = { query };
                     const mcpResponse = await this.mcp.process(mcpRequest);
-
                     if (mcpResponse.error) {
                         return `Error: ${mcpResponse.error}`;
                     }
-
                     return mcpResponse.content;
                 }
             }
-
             // Return an instance of the tool
             return new SuadaTool(this);
-
-        } catch (error) {
+        }
+        catch (error) {
             console.error('LangChain is not installed. Install it with npm install langchain');
             throw new Error('LangChain is required to create a LangChain tool. Install it with npm install langchain');
         }
     }
 }
-
+exports.SuadaMCP = SuadaMCP;
 // Example usage
 /*
 async function example() {
@@ -250,3 +187,4 @@ async function example() {
   }
 }
 */ 
+//# sourceMappingURL=suada-mcp.js.map
