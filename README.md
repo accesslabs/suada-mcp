@@ -13,6 +13,16 @@ Suada is an Integrated Reasoning Framework that helps you build custom data pipe
 
 This MCP implementation provides a bridge between AI models (like Claude) and Suada's powerful data processing and reasoning capabilities.
 
+We provide integrations to to the following platforms, with more to come in the future:
+
+- Slack
+- Notion
+- Google Analytics
+- Hubspot
+- Linear
+- Zoho
+- Jira
+
 ## What is MCP?
 
 Model Context Protocol (MCP) provides a standard way for language models to interact with external tools and data sources. This implementation allows Claude and other MCP-compatible models to:
